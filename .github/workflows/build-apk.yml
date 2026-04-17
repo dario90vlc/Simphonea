@@ -27,7 +27,8 @@ jobs:
           rm -rf www/*
           cp ../DISEÑO.HTML www/index.html
           cp ../manifest.json www/manifest.json
-          # Si tienes un icono, podrías copiarlo aquí también.
+          cp ../config.xml config.xml
+          # El config.xml ahora incluye los permisos RECORD_AUDIO nativos.
           
       - name: Build Android APK (Debug)
         run: |
