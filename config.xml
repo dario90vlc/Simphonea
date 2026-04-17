@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.simphonea.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.simphonea.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>Simphonea</name>
     <description>Guitar Tools Ultra</description>
     <author email="dev@simphonea.com" href="https://simphonea.com">Simphonea Team</author>
@@ -8,7 +8,6 @@
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <preference name="Orientation" value="portrait" />
-    <preference name="BackgroundColor" value="0xFF050507" />
     
     <platform name="android">
         <config-file target="AndroidManifest.xml" parent="/*">
