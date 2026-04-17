@@ -1,0 +1,17 @@
+{
+  "name": "Simphonea Guitar Tools",
+  "short_name": "Simphonea",
+  "start_url": "./DISEÑO.HTML",
+  "display": "standalone",
+  "background_color": "#050507",
+  "theme_color": "#8b5cf6",
+  "description": "Herramientas ultra precisas para guitarristas pro.",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
