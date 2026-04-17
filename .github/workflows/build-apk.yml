@@ -24,6 +24,8 @@ jobs:
           cordova create simphonea_app com.simphonea.app Simphonea
           cd simphonea_app
           cordova platform add android
+          cordova plugin add cordova-plugin-android-permissions
+          cordova plugin add cordova-plugin-media
           rm -rf www/*
           cp ../DISEÑO.HTML www/index.html
           cp ../manifest.json www/manifest.json

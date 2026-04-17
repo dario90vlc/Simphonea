@@ -1382,7 +1382,15 @@
         </div>
     </div>
 
+    <script src="cordova.js"></script>
     <script>
+        // Native state
+        let isNative = false;
+        document.addEventListener('deviceready', () => {
+            isNative = true;
+            console.log('Cordova inicializado correctamente');
+        }, false);
+
         const TUN = {
             standard: { l: 'Estándar (E A D G B E)', n: ['E', 'A', 'D', 'G', 'B', 'E'], f: [82.41, 110.00, 146.83, 196.00, 246.94, 329.63] },
             dropd: { l: 'Drop D (D A D G B E)', n: ['D', 'A', 'D', 'G', 'B', 'E'], f: [73.42, 110.00, 146.83, 196.00, 246.94, 329.63] },
@@ -1597,22 +1605,45 @@
                 document.getElementById('nChar').className = 'note-char';
                 return;
             }
+
+            // Chequeo de permisos nativos si estamos en Android
+            if (isNative && window.cordova && window.cordova.plugins && window.cordova.plugins.permissions) {
+                const permissions = window.cordova.plugins.permissions;
+                const micPerm = permissions.RECORD_AUDIO;
+
+                const checkPromise = new Promise((resolve) => {
+                    permissions.checkPermission(micPerm, (status) => {
+                        if (status.hasPermission) resolve(true);
+                        else {
+                            permissions.requestPermission(micPerm, (s) => resolve(s.hasPermission), () => resolve(false));
+                        }
+                    }, () => resolve(false));
+                });
+
+                const hasMic = await checkPromise;
+                if (!hasMic) {
+                    alert('Se requiere permiso de micrófono para afinar la guitarra. Por favor, acéptalo en el aviso del sistema.');
+                    return;
+                }
+            }
+
             try {
                 if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
                 if (actx.state === 'suspended') await actx.resume();
 
-                // Intentamos primero con restricciones relajadas para asegurar conexión
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                } catch (e2) {
-                    // Si falla, intentamos con restricciones específicas
-                    stream = await navigator.mediaDevices.getUserMedia({
-                        audio: {
-                            echoCancellation: false,
-                            noiseSuppression: false,
-                            autoGainControl: false
-                        }
-                    });
+                // Intentamos con restricciones relajadas y forzamos el track
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    } 
+                }).catch(async () => {
+                   return await navigator.mediaDevices.getUserMedia({ audio: true });
+                });
+
+                if (!stream || stream.getAudioTracks().length === 0) {
+                    throw new Error('No se detectó entrada de audio');
                 }
 
                 ana = actx.createAnalyser(); ana.fftSize = 4096;
@@ -1623,8 +1654,8 @@
                 document.getElementById('gDot').classList.add('on'); document.getElementById('gLbl').textContent = 'Escuchando';
                 tuneLoop();
             } catch (e) {
-                console.error(e);
-                alert('No se pudo iniciar el micrófono. Por favor, asegúrate de que la aplicación tiene permiso para grabar audio en los ajustes de tu teléfono.');
+                console.error('Tuner Error:', e);
+                alert('No se pudo conectar con el micrófono. Asegúrate de que ninguna otra app lo esté usando y que Simphonea tiene el permiso activo.');
             }
         }
 
