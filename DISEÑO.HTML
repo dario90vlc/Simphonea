@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data: https://cdn.jsdelivr.net; media-src *; img-src 'self' data: content:;">
     <title>Simphonea - Guitar Tools Ultra</title>
     <style>
         @import url('https://cdn.jsdelivr.net/npm/fontsource-inter@5.0.0/index.css');
@@ -1600,13 +1601,19 @@
                 if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
                 if (actx.state === 'suspended') await actx.resume();
 
-                stream = await navigator.mediaDevices.getUserMedia({
-                    audio: {
-                        echoCancellation: false,
-                        noiseSuppression: false,
-                        autoGainControl: false
-                    }
-                });
+                // Intentamos primero con restricciones relajadas para asegurar conexión
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                } catch (e2) {
+                    // Si falla, intentamos con restricciones específicas
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        audio: {
+                            echoCancellation: false,
+                            noiseSuppression: false,
+                            autoGainControl: false
+                        }
+                    });
+                }
 
                 ana = actx.createAnalyser(); ana.fftSize = 4096;
                 const src = actx.createMediaStreamSource(stream); src.connect(ana);
@@ -1617,7 +1624,7 @@
                 tuneLoop();
             } catch (e) {
                 console.error(e);
-                alert('Error de acceso al micrófono: ' + e.message + '. Asegúrate de dar permisos en los ajustes del sistema.');
+                alert('No se pudo iniciar el micrófono. Por favor, asegúrate de que la aplicación tiene permiso para grabar audio en los ajustes de tu teléfono.');
             }
         }
 
