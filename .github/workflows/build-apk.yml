@@ -16,19 +16,25 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Bubblewrap
-        run: npm install -g @bubblewrap/cli
+      - name: Setup Cordova
+        run: npm install -g cordova
 
-      - name: Build APK (Simphonea)
-        # Nota: En un entorno real, bubblewrap requiere interacción o un archivo de configuración pre-existente.
-        # Para Github Actions, usamos un comando simplificado o una acción específica.
-        # Usaremos 'pwa-to-apk' o similar si estuviera disponible, o configuraremos bubblewrap.
+      - name: Create Cordova Project
         run: |
-          mkdir output
-          # Simulamos la generación del comando bubblewrap con parámetros
-          # En una implementación real, se usaría un archivo 'twa-manifest.json'
-          echo "Simulando compilación de Simphonea.apk..."
-          touch output/Simphonea.apk
+          cordova create simphonea_app com.simphonea.app Simphonea
+          cd simphonea_app
+          cordova platform add android
+          rm -rf www/*
+          cp ../DISEÑO.HTML www/index.html
+          cp ../manifest.json www/manifest.json
+          # Si tienes un icono, podrías copiarlo aquí también.
+          
+      - name: Build Android APK
+        run: |
+          cd simphonea_app
+          cordova build android --release -- --packageType=apk
+          mkdir -p ../output
+          cp platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk ../output/Simphonea.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
