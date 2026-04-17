@@ -1583,11 +1583,15 @@
 
         function needleLoop() {
             const force = (sT - sA) * 0.1; sV += force; sV *= 0.6; sA += sV;
-            const maxR = 48 * Math.PI / 180;
-            const rad = Math.PI - (sA / 50 + 1) * maxR;
-            const len = 122;
+            // El ángulo debe ser 90 grados (PI/2) cuando sA es 0
+            const maxR = 50 * Math.PI / 180; // 50 grados a cada lado (rango total 100)
+            const rad = Math.PI / 2 + (sA / 50) * maxR; 
+            const len = 120;
             const nd = document.getElementById('needle');
-            if (nd) { nd.setAttribute('x2', 160 + len * Math.cos(rad)); nd.setAttribute('y2', 160 - len * Math.sin(rad)); }
+            if (nd) { 
+                nd.setAttribute('x2', 160 + len * Math.sin(rad)); 
+                nd.setAttribute('y2', 160 - len * Math.cos(rad)); 
+            }
             requestAnimationFrame(needleLoop);
         }
 
